@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SCRIPT_PATH="$PWD/zerotoolkit.py"
-DESKTOP_FILE="$HOME/.local/share/applications/zerotoolkit.desktop"
-SYMLINK_PATH="/usr/local/bin/zerotoolkit"
+SCRIPT_PATH="$PWD/zeroxploit.py"
+DESKTOP_FILE="$HOME/.local/share/applications/zeroxploit.desktop"
+SYMLINK_PATH="/usr/local/bin/zeroxploit"
 ICON_PATH="$PWD/assets/icon.png"
 
 if [ ! -f "$ICON_PATH" ]; then
@@ -14,7 +14,7 @@ fi
 cat << EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Version=1.0
-Name=ZeroToolkit
+Name=Zeroxploit
 Comment=Penetration Testing Toolkit
 Exec=gnome-terminal -- bash -c "/usr/bin/python3 $SCRIPT_PATH; echo 'Press Enter to exit...'; read"
 Icon=$ICON_PATH

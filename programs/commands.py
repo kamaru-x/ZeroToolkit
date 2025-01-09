@@ -1,85 +1,78 @@
-def cmd_back(args):
-    print("Returning to the main context...")
+import os
+import subprocess
+from programs.marketplace import marketplace_items, list_marketplace_items
+from programs.functions import search_items
+
+project_dir = os.path.abspath(os.getcwd())
 
 
-def cmd_dashboard(args):
-    print("Dashboard functionality not implemented yet.")
+################################################## HELP ##################################################
 
+def cmd_help(args):
+    BLUE = "\033[94m"
+    WHITE = "\033[97m"
+    RESET = "\033[0m"
 
-def cmd_db(args):
-    print("Database functionality not implemented yet.")
+    print(f"""
+    {BLUE}marketplace{RESET}     {WHITE}Interfaces with the module marketplace{RESET}
+    {BLUE}exit{RESET}            {WHITE}Exits the framework{RESET}
+    """)
 
+################################################## MARKETPLACE ##################################################
+
+def cmd_marketplace(args):
+    item_types = {item["type"] for item in marketplace_items}
+
+    if not args:
+        list_marketplace_items(marketplace_items, "Marketplace (All Items)")
+    elif len(args) == 1:
+        if args[0] in item_types:
+            list_marketplace_items([item for item in marketplace_items if item["type"] == args[0]], args[0].capitalize())
+        else:
+            print(f"Error: Unknown argument '{args[0]}'. Valid types are {', '.join(item_types)}.")
+    elif len(args) == 2 and args[0] == "search":
+        search_items(args[1])
+    elif len(args) == 2 and args[0] == "install":
+        cmd_install(args[1:])
+    else:
+        print("Error: Invalid command format. Use 'marketplace [modules|scripts|exploits]' or 'marketplace search <term>' or 'marketplace install <item_id>'.")
+
+################################################## INSTALL ##################################################
+
+def cmd_install(args):
+    if len(args) == 1:
+        item_id = args[0]
+        
+        item = next((i for i in marketplace_items if i["id"] == item_id), None)
+        
+        if item:
+            print(f"\033[92mInstalling {item['name']}...\033[0m")
+            
+            type_to_folder = {"module": "modules", "script": "scripts", "exploit": "exploits"}
+            
+            install_type = item["type"]
+            if install_type not in type_to_folder:
+                print(f"Error: Unknown item type '{install_type}'")
+                return
+
+            install_path = os.path.join(os.getcwd(), type_to_folder[install_type], item["folder"])
+            
+            if not os.path.exists(install_path):
+                os.makedirs(install_path)
+                print(f"Created folder: {install_path}")
+
+            try:
+                subprocess.run(["git", "clone", item["url"], install_path], check=True)
+                print(f"Successfully installed {item['name']} to folder: {install_path}")
+            except subprocess.CalledProcessError as e:
+                print(f"Error: Failed to install {item['name']}. Git clone failed. {e}")
+        else:
+            print(f"Error: Item with ID {item_id} not found.")
+    else:
+        print("Error: Invalid command format. Use 'install <item_id>'.")
+
+################################################## EXIT ##################################################
 
 def cmd_exit(args):
     print("Exiting ZeroToolkit. Goodbye!")
     exit(0)
-
-
-def cmd_help(args):
-    print("""
-    back            Exits the current context
-    dashboard       Displays a summary of activity
-    db              Interfaces with the workspace's database
-    exit            Exits the framework
-    help            Displays this menu
-    index           Creates a module index (dev only)
-    keys            Manages third party resource credentials
-    marketplace     Interfaces with the module marketplace
-    modules         Interfaces with installed modules
-    options         Manages the current context options
-    pdb             Starts a Python Debugger session (dev only)
-    script          Records and executes command scripts
-    shell           Executes shell commands
-    show            Shows various framework items
-    snapshots       Manages workspace snapshots
-    spool           Spools output to a file
-    workspaces      Manages workspaces
-    """)
-
-
-def cmd_index(args):
-    print("Index functionality not implemented yet.")
-
-
-def cmd_keys(args):
-    print("Keys management functionality not implemented yet.")
-
-
-def cmd_marketplace(args):
-    print("Marketplace functionality not implemented yet.")
-
-
-def cmd_modules(args):
-    print("Modules functionality not implemented yet.")
-
-
-def cmd_options(args):
-    print("Options functionality not implemented yet.")
-
-
-def cmd_pdb(args):
-    print("Starting Python Debugger...")
-
-
-def cmd_script(args):
-    print("Script functionality not implemented yet.")
-
-
-def cmd_shell(args):
-    print("Shell functionality not implemented yet.")
-
-
-def cmd_show(args):
-    print("Show functionality not implemented yet.")
-
-
-def cmd_snapshots(args):
-    print("Snapshots functionality not implemented yet.")
-
-
-def cmd_spool(args):
-    print("Spool functionality not implemented yet.")
-
-
-def cmd_workspaces(args):
-    print("Workspaces functionality not implemented yet.")
