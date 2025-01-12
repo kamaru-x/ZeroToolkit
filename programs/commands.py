@@ -16,9 +16,9 @@ def cmd_help(args):
 
     print(f"""
     {BLUE}marketplace{RESET}     {WHITE}Interfaces with the module marketplace{RESET}
-    {BLUE}modules{RESET}     {WHITE}List all installed modules{RESET}
-    {BLUE}scripts{RESET}     {WHITE}List all installed scripts{RESET}
-    {BLUE}exploits{RESET}     {WHITE}List all installed exploits{RESET}
+    {BLUE}modules{RESET}         {WHITE}List all installed modules{RESET}
+    {BLUE}scripts{RESET}         {WHITE}List all installed scripts{RESET}
+    {BLUE}exploits{RESET}        {WHITE}List all installed exploits{RESET}
     {BLUE}exit{RESET}            {WHITE}Exits the framework{RESET}
     """)
 

@@ -3,14 +3,14 @@
 from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_modules, cmd_scripts, cmd_exploits, cmd_execute, cmd_update, cmd_delete, cmd_exit)
 
 class ZeroToolkit:
-    GREEN = "\033[92m"   # Green color for banner
-    YELLOW = "\033[93m"  # Yellow color for prompt
-    RED = "\033[91m"     # Red color for error messages
-    RESET = "\033[0m"    # Reset color to default
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
 
     def __init__(self):
-        self.current_workspace = "executer"
-        self.prompt = f"{self.YELLOW}[zerotoolkit][{self.current_workspace}] > {self.RESET}"
+        self.workspace = "executer"
+        self.prompt = f"{self.YELLOW}[zerotoolkit][{self.workspace}] > {self.RESET}"
         self.commands = {
             "help": cmd_help, "marketplace": cmd_marketplace, "install": cmd_install, "exit": cmd_exit, "modules": cmd_modules, "scripts": cmd_scripts, 
             "exploits": cmd_exploits, "execute" : cmd_execute, "update": cmd_update, "delete": cmd_delete
