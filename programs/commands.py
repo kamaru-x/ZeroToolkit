@@ -161,7 +161,6 @@ def cmd_execute(args):
         if item:
             print(f"\033[92mExecuting {item['name']}...\033[0m")
             
-            # Determine execution path based on item type
             type_to_folder = {"module": "modules", "script": "scripts", "exploit": "exploits"}
             folder_name = type_to_folder.get(item["type"])
             
@@ -173,13 +172,20 @@ def cmd_execute(args):
             
             if os.path.exists(exec_path):
                 try:
-                    # Execute based on language
+                    command = []
                     if item["language"] == "python":
-                        subprocess.run(["python", exec_path], check=True)
+                        command = ["python", exec_path]
                     elif item["language"] == "bash":
-                        subprocess.run(["bash", exec_path], check=True)
+                        command = ["bash", exec_path]
                     else:
                         print(f"Error: Unsupported language '{item['language']}' for {item['name']}.")
+                        return
+                    
+                    # Check if superuser is required
+                    if item["superuser"]:
+                        command.insert(0, "sudo")
+                    
+                    subprocess.run(command, check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"Error: Failed to execute {item['name']}. {e}")
             else:
@@ -198,7 +204,6 @@ def cmd_update(args):
         item = next((i for i in marketplace_items if i["id"] == item_id), None)
         
         if item:
-            # Construct the installation path using PROJECT_DIR
             if item["type"] == "module":
                 install_path = os.path.join(PROJECT_DIR, "modules", item["folder"])
             elif item["type"] == "script":
@@ -209,7 +214,6 @@ def cmd_update(args):
                 print(f"Error: Unknown item type '{item['type']}'")
                 return
 
-            # Debug: Check the constructed path
             print(f"Install Path: {install_path}")
 
             if os.path.exists(install_path):
@@ -239,7 +243,6 @@ def cmd_delete(args):
         item = next((i for i in marketplace_items if i["id"] == item_id), None)
         
         if item:
-            # Construct the installation path using PROJECT_DIR
             if item["type"] == "module":
                 install_path = os.path.join(PROJECT_DIR, "modules", item["folder"])
             elif item["type"] == "script":
@@ -250,7 +253,6 @@ def cmd_delete(args):
                 print(f"Error: Unknown item type '{item['type']}'")
                 return
 
-            # Debug: Check the constructed path
             print(f"Install Path: {install_path}")
 
             if os.path.exists(install_path):

@@ -1,7 +1,7 @@
 # marketplace.py
 
 marketplace_items = [
-    {"id": "mapper", "name": "Network Mapper", "description": "Find device in a network", "url": "https://github.com/kamaru-x/Scanner.git", "type": "script", "language": "python", "folder": "mapper", "start": "scanner.py"},
+    {"id": "mapper", "name": "Network Mapper", "description": "Find device in a network", "url": "https://github.com/kamaru-x/Scanner.git", "type": "script", "language": "python", "folder": "mapper", "start": "scanner.py", "superuser": True},
 ]
 
 def list_marketplace_items(items, title):
