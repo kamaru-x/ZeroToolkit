@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_modules, cmd_scripts, cmd_exploits, cmd_execute, cmd_update, cmd_delete, cmd_exit)
+from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_modules, cmd_scripts, cmd_exploits, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
 
 class ZeroToolkit:
     GREEN = "\033[92m"
@@ -13,7 +13,7 @@ class ZeroToolkit:
         self.prompt = f"{self.YELLOW}[zerotoolkit][{self.workspace}] > {self.RESET}"
         self.commands = {
             "help": cmd_help, "marketplace": cmd_marketplace, "install": cmd_install, "exit": cmd_exit, "modules": cmd_modules, "scripts": cmd_scripts, 
-            "exploits": cmd_exploits, "execute" : cmd_execute, "update": cmd_update, "delete": cmd_delete
+            "exploits": cmd_exploits, "execute" : cmd_execute, "update": cmd_update, "delete": cmd_delete, "clear": cmd_clear
         }
 
     def display_banner(self):

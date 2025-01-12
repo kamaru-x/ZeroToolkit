@@ -1,8 +1,7 @@
 # marketplace.py
 
 marketplace_items = [
-    {"id": "ztm1", "name": "User Finder", "description": "Find all platform users with username", "url": "https://github.com/kamaru-x/UserProfiler.git", "type": "module", "language": "python", "folder": "user_finder", "start": "execute.py"},
-    {"id": "zts1", "name": "Network Mapper", "description": "Find open ports in a network", "url": "https://github.com/kamaru-x/Scanner.git", "type": "script", "language": "python", "folder": "network_mapper", "start": "scanner.py"},
+    {"id": "mapper", "name": "Network Mapper", "description": "Find device in a network", "url": "https://github.com/kamaru-x/Scanner.git", "type": "script", "language": "python", "folder": "mapper", "start": "scanner.py"},
 ]
 
 def list_marketplace_items(items, title):

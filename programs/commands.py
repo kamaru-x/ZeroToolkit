@@ -2,9 +2,9 @@ import os
 import shutil
 import subprocess
 from programs.marketplace import marketplace_items, list_marketplace_items
-from programs.functions import search_items, search_items_by_type, execute_item
+from programs.functions import search_items, search_items_by_type
 
-project_dir = os.path.abspath(os.getcwd())
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 
 ################################################## HELP ##################################################
@@ -71,7 +71,8 @@ def cmd_install(args):
                 print(f"Error: Unknown item type '{install_type}'")
                 return
 
-            install_path = os.path.join(os.getcwd(), type_to_folder[install_type], item["folder"])
+            # Use the project directory for installation
+            install_path = os.path.join(PROJECT_DIR, type_to_folder[install_type], item["folder"])
             
             if not os.path.exists(install_path):
                 os.makedirs(install_path)
@@ -86,6 +87,7 @@ def cmd_install(args):
             print(f"Error: Item with ID {item_id} not found.")
     else:
         print("Error: Invalid command format. Use 'install <item_id>'.")
+
 
 ################################################## MODULES ##################################################
 
@@ -154,7 +156,36 @@ def cmd_exploits(args):
 def cmd_execute(args):
     if len(args) == 1:
         item_id = args[0]
-        execute_item(item_id)
+        item = next((i for i in marketplace_items if i["id"] == item_id), None)
+        
+        if item:
+            print(f"\033[92mExecuting {item['name']}...\033[0m")
+            
+            # Determine execution path based on item type
+            type_to_folder = {"module": "modules", "script": "scripts", "exploit": "exploits"}
+            folder_name = type_to_folder.get(item["type"])
+            
+            if not folder_name:
+                print(f"Error: Unknown item type '{item['type']}'")
+                return
+            
+            exec_path = os.path.join(PROJECT_DIR, folder_name, item["folder"], item["start"])
+            
+            if os.path.exists(exec_path):
+                try:
+                    # Execute based on language
+                    if item["language"] == "python":
+                        subprocess.run(["python", exec_path], check=True)
+                    elif item["language"] == "bash":
+                        subprocess.run(["bash", exec_path], check=True)
+                    else:
+                        print(f"Error: Unsupported language '{item['language']}' for {item['name']}.")
+                except subprocess.CalledProcessError as e:
+                    print(f"Error: Failed to execute {item['name']}. {e}")
+            else:
+                print(f"Error: {item['start']} not found in the specified path: {exec_path}")
+        else:
+            print(f"Error: Item with ID {item_id} not found.")
     else:
         print("Error: Invalid command format. Use 'execute <item_id>'.")
 
@@ -167,15 +198,19 @@ def cmd_update(args):
         item = next((i for i in marketplace_items if i["id"] == item_id), None)
         
         if item:
+            # Construct the installation path using PROJECT_DIR
             if item["type"] == "module":
-                install_path = os.path.join(os.getcwd(), "modules", item["folder"])
+                install_path = os.path.join(PROJECT_DIR, "modules", item["folder"])
             elif item["type"] == "script":
-                install_path = os.path.join(os.getcwd(), "scripts", item["folder"])
+                install_path = os.path.join(PROJECT_DIR, "scripts", item["folder"])
             elif item["type"] == "exploit":
-                install_path = os.path.join(os.getcwd(), "exploits", item["folder"])
+                install_path = os.path.join(PROJECT_DIR, "exploits", item["folder"])
             else:
                 print(f"Error: Unknown item type '{item['type']}'")
                 return
+
+            # Debug: Check the constructed path
+            print(f"Install Path: {install_path}")
 
             if os.path.exists(install_path):
                 try:
@@ -204,15 +239,19 @@ def cmd_delete(args):
         item = next((i for i in marketplace_items if i["id"] == item_id), None)
         
         if item:
+            # Construct the installation path using PROJECT_DIR
             if item["type"] == "module":
-                install_path = os.path.join(os.getcwd(), "modules", item["folder"])
+                install_path = os.path.join(PROJECT_DIR, "modules", item["folder"])
             elif item["type"] == "script":
-                install_path = os.path.join(os.getcwd(), "scripts", item["folder"])
+                install_path = os.path.join(PROJECT_DIR, "scripts", item["folder"])
             elif item["type"] == "exploit":
-                install_path = os.path.join(os.getcwd(), "exploits", item["folder"])
+                install_path = os.path.join(PROJECT_DIR, "exploits", item["folder"])
             else:
                 print(f"Error: Unknown item type '{item['type']}'")
                 return
+
+            # Debug: Check the constructed path
+            print(f"Install Path: {install_path}")
 
             if os.path.exists(install_path):
                 try:
@@ -226,6 +265,17 @@ def cmd_delete(args):
             print(f"Error: Item with ID {item_id} not found.")
     else:
         print("Error: Invalid command format. Use 'delete <item_id>'.")
+
+
+################################################## CLEAR ##################################################
+
+def cmd_clear(args):
+    if os.name == 'posix':
+        os.system('clear')
+    elif os.name == 'nt':
+        os.system('cls')
+    else:
+        print("Error: Unsupported OS")
 
 ################################################## EXIT ##################################################
 
