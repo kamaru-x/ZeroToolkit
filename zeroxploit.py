@@ -1,69 +1,86 @@
 #!/usr/bin/env python
 
-from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_list, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
+from typing import Dict, Callable, List, Optional
+from pathlib import Path
 import readline
+from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_list, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
+from programs.marketplace import Color
 
 class ZeroToolkit:
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    RED = "\033[91m"
-    RESET = "\033[0m"
-
-    def __init__(self):
-        self.workspace = "executer"
-        self.prompt = f"{self.YELLOW}[zerotoolkit][{self.workspace}] > {self.RESET}"
-        self.commands = {
-            "help": cmd_help, 
-            "marketplace": cmd_marketplace, 
-            "install": cmd_install, 
-            "exit": cmd_exit, 
-            "list": cmd_list,  # Replace old commands with new list command
-            "execute": cmd_execute, 
-            "update": cmd_update, 
-            "delete": cmd_delete, 
-            "clear": cmd_clear
+    """Main toolkit class handling command execution and user interaction"""
+    
+    def __init__(self) -> None:
+        self.workspace: str = "executer"
+        self.prompt: str = f"{Color.YELLOW}[zerotoolkit][{self.workspace}] > {Color.RESET}"
+        self.commands: Dict[str, Callable] = {
+            "help": cmd_help,
+            "marketplace": cmd_marketplace,
+            "install": cmd_install,
+            "list": cmd_list,
+            "execute": cmd_execute,
+            "update": cmd_update,
+            "delete": cmd_delete,
+            "clear": cmd_clear,
+            "exit": cmd_exit
         }
         self.setup_readline()
 
-    def setup_readline(self):
+    def setup_readline(self) -> None:
+        """Configure readline for command history"""
         readline.set_history_length(1000)
+        readline.parse_and_bind('tab: complete')
 
-    def display_banner(self):
+    def display_banner(self) -> None:
+        """Display the toolkit banner"""
         banner = f"""
-        {self.GREEN}
+        {Color.GREEN}
         ███████╗███████╗██████╗  ██████╗ ██╗  ██╗██████╗ ██╗      ██████╗ ██╗████████╗
         ╚══███╔╝██╔════╝██╔══██╗██╔═══██╗╚██╗██╔╝██╔══██╗██║     ██╔═══██╗██║╚══██╔══╝
           ███╔╝ █████╗  ██████╔╝██║   ██║ ╚███╔╝ ██████╔╝██║     ██║   ██║██║   ██║   
          ███╔╝  ██╔══╝  ██╔══██╗██║   ██║ ██╔██╗ ██╔═══╝ ██║     ██║   ██║██║   ██║   
         ███████╗███████╗██║  ██║╚██████╔╝██╔╝ ██╗██║     ███████╗╚██████╔╝██║   ██║   
-        ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═╝   ╚═╝                                                                            
-        {self.RESET}
-        {self.GREEN}Developed by Kamarudheen{self.RESET}
+        ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═╝   ╚═╝   
+        {Color.RESET}
+        {Color.GREEN}Developed by Kamarudheen{Color.RESET}
         """
         print(banner)
 
-    def run(self):
+    def execute_command(self, cmd: str, args: List[str]) -> None:
+        """Execute a command with its arguments"""
+        if cmd in self.commands:
+            try:
+                self.commands[cmd](args)
+            except Exception as e:
+                print(f"{Color.RED}Error executing command: {e}{Color.RESET}")
+        else:
+            print(f"{Color.RED}Unknown command: {cmd}. Use 'help' for available commands.{Color.RESET}")
+
+    def run(self) -> None:
+        """Main execution loop"""
         self.display_banner()
+        
         while True:
             try:
                 command = input(self.prompt).strip()
                 if not command:
                     continue
+                    
                 cmd_parts = command.split()
-                cmd = cmd_parts[0]
-                args = cmd_parts[1:]
-
-                if cmd in self.commands:
-                    self.commands[cmd](args)
-                else:
-                    print(f"{self.RED}Unknown command: {cmd}.{self.RESET}")
+                cmd, args = cmd_parts[0], cmd_parts[1:]
+                self.execute_command(cmd, args)
+                
             except KeyboardInterrupt:
-                print("\nExiting ZeroToolkit. Goodbye!")
-                break
+                print("\nUse 'exit' to quit")
             except EOFError:
                 print("\nExiting ZeroToolkit. Goodbye!")
                 break
+            except Exception as e:
+                print(f"{Color.RED}Unexpected error: {e}{Color.RESET}")
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entry point of the application"""
     toolkit = ZeroToolkit()
     toolkit.run()
+
+if __name__ == "__main__":
+    main()

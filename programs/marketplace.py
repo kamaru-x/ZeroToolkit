@@ -1,41 +1,69 @@
-# marketplace.py
+from typing import Dict, List, Any
+from dataclasses import dataclass
+from enum import Enum
 
-# Define available types
-ITEM_TYPES = {
+class Color:
+    """ANSI color codes for consistent styling"""
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    RED = "\033[91m"
+    WHITE = "\033[97m"
+    RESET = "\033[0m"
+
+# Define available types with their plural forms
+ITEM_TYPES: Dict[str, str] = {
     "module": "modules",
     "script": "scripts",
     "exploit": "exploits"
 }
 
-# Only support Python
-SUPPORTED_LANGUAGE = "python"
+@dataclass
+class MarketplaceItem:
+    """Structure for marketplace items"""
+    id: str
+    name: str
+    description: str
+    url: str
+    type: str
+    folder: str
+    start: str
+    superuser: bool = False
 
-marketplace_items = [
-    {"id": "mapper", "name": "Network Mapper", "description": "Find device in a network", 
-     "url": "https://github.com/kamaru-x/Scanner.git", "type": "script", 
-     "folder": "mapper", "start": "scanner.py", "superuser": True},
+marketplace_items: List[MarketplaceItem] = [
+    MarketplaceItem(
+        id="mapper",
+        name="Network Mapper",
+        description="Find device in a network",
+        url="https://github.com/kamaru-x/Scanner.git",
+        type="script",
+        folder="mapper",
+        start="scanner.py",
+        superuser=True
+    )
 ]
 
-def get_plural_name(item_type):
+def get_plural_name(item_type: str) -> str:
+    """Get plural form of item type"""
     return ITEM_TYPES.get(item_type, f"{item_type}s")
 
-def is_valid_type(item_type):
+def is_valid_type(item_type: str) -> bool:
+    """Check if item type is valid"""
     return item_type in ITEM_TYPES
 
-def list_marketplace_items(items, title):
-    CYAN = "\033[96m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    BLUE = "\033[94m"
-    RESET = "\033[0m"
+def list_marketplace_items(items: List[MarketplaceItem], title: str) -> None:
+    """Display marketplace items in a stylized box format"""
+    c = Color
+    divider = "─" * 100
     
-    print("\n" + "─" * 100)
-    print(f"{GREEN}{title.center(100)}{RESET}")
-    print("─" * 100 + "\n")
+    print(f"\n{divider}")
+    print(f"{c.GREEN}{title.center(100)}{c.RESET}")
+    print(f"{divider}\n")
     
     for item in items:
-        print(f"{CYAN}❯ {YELLOW}ID{RESET}: {item['id']}")
-        print(f"{CYAN}├─{YELLOW}Name{RESET}: {BLUE}{item['name']}{RESET}")
-        print(f"{CYAN}├─{YELLOW}Type{RESET}: {item['type']}")
-        print(f"{CYAN}└─{YELLOW}Description{RESET}: {item['description']}")
+        print(f"{c.CYAN}❯ {c.YELLOW}ID{c.RESET}: {item.id}")
+        print(f"{c.CYAN}├─{c.YELLOW}Name{c.RESET}: {c.BLUE}{item.name}{c.RESET}")
+        print(f"{c.CYAN}├─{c.YELLOW}Type{c.RESET}: {item.type}")
+        print(f"{c.CYAN}└─{c.YELLOW}Description{c.RESET}: {item.description}")
         print()
