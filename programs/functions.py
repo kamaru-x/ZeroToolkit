@@ -18,6 +18,6 @@ def search_items_by_type(item_type, search_term):
 def search_items(search_term):
     filtered_items = [item for item in marketplace_items if search_term.lower() in item["name"].lower()]
     if filtered_items:
-        list_marketplace_items(filtered_items, "Search Results")
+        list_marketplace_items(filtered_items)
     else:
         print(f"No items found for search term '{search_term}'.")

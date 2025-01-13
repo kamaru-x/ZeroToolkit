@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_modules, cmd_scripts, cmd_exploits, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
+from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_list, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
 import readline
 
 class ZeroToolkit:
@@ -13,8 +13,15 @@ class ZeroToolkit:
         self.workspace = "executer"
         self.prompt = f"{self.YELLOW}[zerotoolkit][{self.workspace}] > {self.RESET}"
         self.commands = {
-            "help": cmd_help, "marketplace": cmd_marketplace, "install": cmd_install, "exit": cmd_exit, "modules": cmd_modules, "scripts": cmd_scripts, 
-            "exploits": cmd_exploits, "execute" : cmd_execute, "update": cmd_update, "delete": cmd_delete, "clear": cmd_clear
+            "help": cmd_help, 
+            "marketplace": cmd_marketplace, 
+            "install": cmd_install, 
+            "exit": cmd_exit, 
+            "list": cmd_list,  # Replace old commands with new list command
+            "execute": cmd_execute, 
+            "update": cmd_update, 
+            "delete": cmd_delete, 
+            "clear": cmd_clear
         }
         self.setup_readline()
 

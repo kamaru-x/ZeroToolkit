@@ -1,7 +1,8 @@
 import os
 import shutil
 import subprocess
-from programs.marketplace import marketplace_items, list_marketplace_items
+from programs.marketplace import (marketplace_items, list_marketplace_items, 
+                                ITEM_TYPES, is_valid_type, get_plural_name)
 from programs.functions import search_items, search_items_by_type
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -15,43 +16,61 @@ def cmd_help(args):
     RESET = "\033[0m"
 
     print(f"""
-    {BLUE}marketplace{RESET}     {WHITE}Interfaces with the module marketplace{RESET}
-    {BLUE}modules{RESET}         {WHITE}List all installed modules{RESET}
-    {BLUE}scripts{RESET}         {WHITE}List all installed scripts{RESET}
-    {BLUE}exploits{RESET}        {WHITE}List all installed exploits{RESET}
-    {BLUE}exit{RESET}            {WHITE}Exits the framework{RESET}
+    {BLUE}marketplace{RESET}                        {WHITE}Interfaces with the module marketplace{RESET}
+
+    {BLUE}list{RESET}                               {WHITE}List installed items (usage: list <type>){RESET}
+
+    {BLUE}install{RESET}                            {WHITE}Install an item from marketplace (usage: install <item_id>){RESET}
+
+    {BLUE}execute{RESET}                            {WHITE}Execute an installed item (usage: execute <item_id>){RESET}
+
+    {BLUE}update{RESET}                             {WHITE}Update an installed item (usage: update <item_id>){RESET}
+
+    {BLUE}delete{RESET}                             {WHITE}Remove an installed item (usage: delete <item_id>){RESET}
+
+    {BLUE}clear{RESET}                              {WHITE}Clear the terminal screen{RESET}
+
+    {BLUE}exit{RESET}                               {WHITE}Exit the framework{RESET}
     """)
 
 ################################################## MARKETPLACE ##################################################
 
 def cmd_marketplace(args):
-    item_types = {item["type"] for item in marketplace_items}
-
     if not args:
         list_marketplace_items(marketplace_items, "Marketplace (All Items)")
-    elif len(args) == 1:
-        if args[0] == "modules":
-            list_marketplace_items([item for item in marketplace_items if item["type"] == "module"], "Modules")
-        elif args[0] == "scripts":
-            list_marketplace_items([item for item in marketplace_items if item["type"] == "script"], "Scripts")
-        elif args[0] == "exploits":
-            list_marketplace_items([item for item in marketplace_items if item["type"] == "exploit"], "Exploits")
-        elif args[0] in item_types:
-            list_marketplace_items([item for item in marketplace_items if item["type"] == args[0]], args[0].capitalize())
+        return
+
+    cmd = args[0]
+    if len(args) == 1:
+        # Remove 's' from plural form if present
+        type_singular = cmd[:-1] if cmd.endswith('s') else cmd
+        if is_valid_type(type_singular):
+            filtered_items = [item for item in marketplace_items if item["type"] == type_singular]
+            list_marketplace_items(filtered_items, get_plural_name(type_singular).capitalize())
         else:
-            print(f"Error: Unknown argument '{args[0]}'. Valid types are {', '.join(item_types)}.")
+            print(f"Error: Unknown type '{cmd}'. Valid types are: {', '.join(ITEM_TYPES.values())}")
     elif len(args) >= 2:
-        if args[0] == "search":
-            if args[1] in item_types:
+        if cmd == "search":
+            if is_valid_type(args[1]):
                 search_items_by_type(args[1], " ".join(args[2:]))
             else:
                 search_items(" ".join(args[1:]))
-        elif args[0] == "install":
-            cmd_install(args[1:])
+        elif is_valid_type(cmd):
+            search_term = " ".join(args[1:])
+            filtered_items = [
+                item for item in marketplace_items 
+                if item["type"] == cmd and search_term.lower() in item["name"].lower()
+            ]
+            if filtered_items:
+                list_marketplace_items(filtered_items, f"Search Results for '{search_term}' in {get_plural_name(cmd)}")
+            else:
+                print(f"\033[91mNo {get_plural_name(cmd)} found matching '{search_term}'\033[0m")
         else:
-            print("Error: Invalid command format. Use 'marketplace [modules|scripts|exploits]' or 'marketplace search <term>' or 'marketplace install <item_id>'.")
-    else:
-        print("Error: Invalid command format.")
+            print("Error: Invalid command format. Use:")
+            print("  marketplace")
+            print("  marketplace <type>")
+            print("  marketplace search <term>")
+            print("  marketplace <type> <search_term>")
 
 ################################################## INSTALL ##################################################
 
@@ -64,7 +83,7 @@ def cmd_install(args):
         if item:
             print(f"\033[92mInstalling {item['name']}...\033[0m")
             
-            type_to_folder = {"module": "modules", "script": "scripts", "exploit": "exploits"}
+            type_to_folder = {item_type: get_plural_name(item_type) for item_type in ITEM_TYPES}
             
             install_type = item["type"]
             if install_type not in type_to_folder:
@@ -89,67 +108,49 @@ def cmd_install(args):
         print("Error: Invalid command format. Use 'install <item_id>'.")
 
 
-################################################## MODULES ##################################################
+################################################## LIST ##################################################
 
-def cmd_modules(args):
-    installed_modules_path = os.path.join(os.getcwd(), "modules")
-    installed_modules = []
+def cmd_list(args):
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
 
-    for item in marketplace_items:
-        if item["type"] == "module":
-            module_path = os.path.join(installed_modules_path, item["folder"])
-            if os.path.exists(module_path):
-                installed_modules.append(item)
+    if len(args) != 1:
+        print(f"{RED}Error: Usage: list <type>{RESET}")
+        print(f"{RED}Valid types: {', '.join(ITEM_TYPES.values())}{RESET}")
+        return
 
-    if installed_modules:
-        for item in installed_modules:
-            print(f"\033[94mID: {item['id']}\033[0m")
-            print(f"Module: \033[92m{item['name']}\033[0m")
-            print(f"Description: {item['description']}\n")
-    else:
-        print("\033[91mNo installed modules found.\033[0m")
+    item_type = args[0][:-1] if args[0].endswith('s') else args[0]
+    if not is_valid_type(item_type):
+        print(f"{RED}Error: Unknown type '{args[0]}'. Valid types are: {', '.join(ITEM_TYPES.values())}{RESET}")
+        return
 
-
-################################################## SCRIPTS ##################################################
-
-def cmd_scripts(args):
-    installed_scripts_path = os.path.join(os.getcwd(), "scripts")
-    installed_scripts = []
+    query_type = item_type
+    installed_path = os.path.join(PROJECT_DIR, get_plural_name(item_type))
+    installed_items = []
 
     for item in marketplace_items:
-        if item["type"] == "script":
-            script_path = os.path.join(installed_scripts_path, item["folder"])
-            if os.path.exists(script_path):
-                installed_scripts.append(item)
+        if item["type"] == query_type:
+            item_path = os.path.join(installed_path, item["folder"])
+            if os.path.exists(item_path):
+                installed_items.append(item)
 
-    if installed_scripts:
-        for item in installed_scripts:
-            print(f"\033[94mID: {item['id']}\033[0m")
-            print(f"Script: \033[92m{item['name']}\033[0m")
-            print(f"Description: {item['description']}\n")
+    if installed_items:
+        print("\n" + "─" * 100)
+        print(f"{GREEN}Installed {get_plural_name(item_type).capitalize()}{RESET}".center(100))
+        print("─" * 100 + "\n")
+        
+        for item in installed_items:
+            print(f"{CYAN}❯ {YELLOW}ID{RESET}: {item['id']}")
+            print(f"{CYAN}├─{YELLOW}Name{RESET}: {BLUE}{item['name']}{RESET}")
+            print(f"{CYAN}├─{YELLOW}Type{RESET}: {item['type']}")
+            print(f"{CYAN}└─{YELLOW}Description{RESET}: {item['description']}")
+            print()
     else:
-        print("\033[91mNo installed scripts found.\033[0m")
-
-
-################################################## EXPLOITS ##################################################
-
-def cmd_exploits(args):
-    installed_exploits_path = os.path.join(os.getcwd(), "exploits")
-    installed_exploits = []
-
-    for item in marketplace_items:
-        if item["type"] == "exploit":
-            exploit_path = os.path.join(installed_exploits_path, item["folder"])
-            if os.path.exists(exploit_path):
-                installed_exploits.append(item)
-
-    if installed_exploits:
-        for item in installed_exploits:
-            print(f"\033[94mID: {item['id']}\033[0m")
-            print(f"Exploit: \033[92m{item['name']}\033[0m")
-            print(f"Description: {item['description']}\n")
-    else:
-        print("\033[91mNo installed exploits found.\033[0m")
+        print(f"{RED}No installed {get_plural_name(item_type)} found.{RESET}")
 
 ################################################## EXECUTE ##################################################
 
@@ -161,7 +162,7 @@ def cmd_execute(args):
         if item:
             print(f"\033[92mExecuting {item['name']}...\033[0m")
             
-            type_to_folder = {"module": "modules", "script": "scripts", "exploit": "exploits"}
+            type_to_folder = {item_type: get_plural_name(item_type) for item_type in ITEM_TYPES}
             folder_name = type_to_folder.get(item["type"])
             
             if not folder_name:
@@ -204,15 +205,7 @@ def cmd_update(args):
         item = next((i for i in marketplace_items if i["id"] == item_id), None)
         
         if item:
-            if item["type"] == "module":
-                install_path = os.path.join(PROJECT_DIR, "modules", item["folder"])
-            elif item["type"] == "script":
-                install_path = os.path.join(PROJECT_DIR, "scripts", item["folder"])
-            elif item["type"] == "exploit":
-                install_path = os.path.join(PROJECT_DIR, "exploits", item["folder"])
-            else:
-                print(f"Error: Unknown item type '{item['type']}'")
-                return
+            install_path = os.path.join(PROJECT_DIR, get_plural_name(item["type"]), item["folder"])
 
             print(f"Install Path: {install_path}")
 
@@ -243,15 +236,7 @@ def cmd_delete(args):
         item = next((i for i in marketplace_items if i["id"] == item_id), None)
         
         if item:
-            if item["type"] == "module":
-                install_path = os.path.join(PROJECT_DIR, "modules", item["folder"])
-            elif item["type"] == "script":
-                install_path = os.path.join(PROJECT_DIR, "scripts", item["folder"])
-            elif item["type"] == "exploit":
-                install_path = os.path.join(PROJECT_DIR, "exploits", item["folder"])
-            else:
-                print(f"Error: Unknown item type '{item['type']}'")
-                return
+            install_path = os.path.join(PROJECT_DIR, get_plural_name(item["type"]), item["folder"])
 
             print(f"Install Path: {install_path}")
 
