@@ -7,10 +7,13 @@ ITEM_TYPES = {
     "exploit": "exploits"
 }
 
+# Only support Python
+SUPPORTED_LANGUAGE = "python"
+
 marketplace_items = [
     {"id": "mapper", "name": "Network Mapper", "description": "Find device in a network", 
      "url": "https://github.com/kamaru-x/Scanner.git", "type": "script", 
-     "language": "python", "folder": "mapper", "start": "scanner.py", "superuser": True},
+     "folder": "mapper", "start": "scanner.py", "superuser": True},
 ]
 
 def get_plural_name(item_type):

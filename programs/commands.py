@@ -3,7 +3,6 @@ import shutil
 import subprocess
 from programs.marketplace import (marketplace_items, list_marketplace_items, 
                                 ITEM_TYPES, is_valid_type, get_plural_name)
-from programs.functions import search_items, search_items_by_type
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -51,10 +50,15 @@ def cmd_marketplace(args):
             print(f"Error: Unknown type '{cmd}'. Valid types are: {', '.join(ITEM_TYPES.values())}")
     elif len(args) >= 2:
         if cmd == "search":
-            if is_valid_type(args[1]):
-                search_items_by_type(args[1], " ".join(args[2:]))
+            search_term = " ".join(args[1:])
+            filtered_items = [
+                item for item in marketplace_items 
+                if search_term.lower() in item["name"].lower()
+            ]
+            if filtered_items:
+                list_marketplace_items(filtered_items, f"Search Results for '{search_term}'")
             else:
-                search_items(" ".join(args[1:]))
+                print(f"\033[91mNo items found matching '{search_term}'\033[0m")
         elif is_valid_type(cmd):
             search_term = " ".join(args[1:])
             filtered_items = [
@@ -173,19 +177,13 @@ def cmd_execute(args):
             
             if os.path.exists(exec_path):
                 try:
-                    command = []
-                    if item["language"] == "python":
-                        command = ["python", exec_path]
-                    elif item["language"] == "bash":
-                        command = ["bash", exec_path]
-                    else:
-                        print(f"Error: Unsupported language '{item['language']}' for {item['name']}.")
-                        return
+                    command = ["python", exec_path]
                     
                     # Check if superuser is required
-                    if item["superuser"]:
+                    if item.get("superuser", False):
                         command.insert(0, "sudo")
                     
+                    print(f"Running command: {' '.join(command)}")
                     subprocess.run(command, check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"Error: Failed to execute {item['name']}. {e}")
