@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_modules, cmd_scripts, cmd_exploits, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
+import readline
 
 class ZeroToolkit:
     GREEN = "\033[92m"
@@ -15,6 +16,10 @@ class ZeroToolkit:
             "help": cmd_help, "marketplace": cmd_marketplace, "install": cmd_install, "exit": cmd_exit, "modules": cmd_modules, "scripts": cmd_scripts, 
             "exploits": cmd_exploits, "execute" : cmd_execute, "update": cmd_update, "delete": cmd_delete, "clear": cmd_clear
         }
+        self.setup_readline()
+
+    def setup_readline(self):
+        readline.set_history_length(1000)
 
     def display_banner(self):
         banner = f"""
@@ -24,7 +29,7 @@ class ZeroToolkit:
           ███╔╝ █████╗  ██████╔╝██║   ██║ ╚███╔╝ ██████╔╝██║     ██║   ██║██║   ██║   
          ███╔╝  ██╔══╝  ██╔══██╗██║   ██║ ██╔██╗ ██╔═══╝ ██║     ██║   ██║██║   ██║   
         ███████╗███████╗██║  ██║╚██████╔╝██╔╝ ██╗██║     ███████╗╚██████╔╝██║   ██║   
-        ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═════╝ ╚═╝   ╚═╝                                                                            
+        ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═╝   ╚═╝                                                                            
         {self.RESET}
         {self.GREEN}Developed by Kamarudheen{self.RESET}
         """
@@ -46,6 +51,9 @@ class ZeroToolkit:
                 else:
                     print(f"{self.RED}Unknown command: {cmd}.{self.RESET}")
             except KeyboardInterrupt:
+                print("\nExiting ZeroToolkit. Goodbye!")
+                break
+            except EOFError:
                 print("\nExiting ZeroToolkit. Goodbye!")
                 break
 
