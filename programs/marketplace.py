@@ -36,10 +36,10 @@ marketplace_items: List[MarketplaceItem] = [
         id="mapper",
         name="Network Mapper",
         description="Find device in a network",
-        url="https://github.com/kamaru-x/Scanner.git",
+        url="https://gitlab.com/marketplace7420103/scripts/mapper.git",
         type="script",
         folder="mapper",
-        start="scanner.py",
+        start="mapper.py",
         superuser=True
     )
 ]
