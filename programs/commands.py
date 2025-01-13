@@ -39,10 +39,11 @@ def cmd_marketplace(args):
         list_marketplace_items(marketplace_items, "Marketplace (All Items)")
         return
 
-    cmd = args[0]
+    cmd = args[0].lower()
+    # Remove 's' from plural form if present
+    type_singular = cmd[:-1] if cmd.endswith('s') else cmd
+
     if len(args) == 1:
-        # Remove 's' from plural form if present
-        type_singular = cmd[:-1] if cmd.endswith('s') else cmd
         if is_valid_type(type_singular):
             filtered_items = [item for item in marketplace_items if item["type"] == type_singular]
             list_marketplace_items(filtered_items, get_plural_name(type_singular).capitalize())
@@ -59,16 +60,16 @@ def cmd_marketplace(args):
                 list_marketplace_items(filtered_items, f"Search Results for '{search_term}'")
             else:
                 print(f"\033[91mNo items found matching '{search_term}'\033[0m")
-        elif is_valid_type(cmd):
+        elif is_valid_type(type_singular):
             search_term = " ".join(args[1:])
             filtered_items = [
                 item for item in marketplace_items 
-                if item["type"] == cmd and search_term.lower() in item["name"].lower()
+                if item["type"] == type_singular and search_term.lower() in item["name"].lower()
             ]
             if filtered_items:
-                list_marketplace_items(filtered_items, f"Search Results for '{search_term}' in {get_plural_name(cmd)}")
+                list_marketplace_items(filtered_items, f"Search Results for '{search_term}' in {get_plural_name(type_singular)}")
             else:
-                print(f"\033[91mNo {get_plural_name(cmd)} found matching '{search_term}'\033[0m")
+                print(f"\033[91mNo {get_plural_name(type_singular)} found matching '{search_term}'\033[0m")
         else:
             print("Error: Invalid command format. Use:")
             print("  marketplace")
