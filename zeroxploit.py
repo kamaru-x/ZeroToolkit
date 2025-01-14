@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 from typing import Dict, Callable, List
-import readline
+import platform
+if platform.system() == "Linux":
+    import readline
 from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_list, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
 from programs.marketplace import Color
 
@@ -25,9 +27,10 @@ class ZeroToolkit:
         self.setup_readline()
 
     def setup_readline(self) -> None:
-        """Configure readline for command history"""
-        readline.set_history_length(1000)
-        readline.parse_and_bind('tab: complete')
+        """Configure readline for command history if on Linux"""
+        if platform.system() == "Linux":
+            readline.set_history_length(1000)
+            readline.parse_and_bind('tab: complete')
 
     def display_banner(self) -> None:
         """Display the toolkit banner"""
