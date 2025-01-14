@@ -56,11 +56,11 @@ def list_marketplace_items(items: List[MarketplaceItem], title: str) -> None:
     """Display marketplace items in a stylized box format"""
     c = Color
     divider = "─" * 100
-    
+
     print(f"\n{divider}")
     print(f"{c.GREEN}{title.center(100)}{c.RESET}")
     print(f"{divider}\n")
-    
+
     for item in items:
         print(f"{c.CYAN}❯ {c.YELLOW}ID{c.RESET}: {item.id}")
         print(f"{c.CYAN}├─{c.YELLOW}Name{c.RESET}: {c.BLUE}{item.name}{c.RESET}")

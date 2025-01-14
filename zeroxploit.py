@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-from typing import Dict, Callable, List, Optional
-from pathlib import Path
+from typing import Dict, Callable, List
 import readline
 from programs.commands import (cmd_help, cmd_marketplace, cmd_install, cmd_list, cmd_execute, cmd_update, cmd_delete, cmd_exit, cmd_clear)
 from programs.marketplace import Color
 
 class ZeroToolkit:
     """Main toolkit class handling command execution and user interaction"""
-    
+
     def __init__(self) -> None:
         self.workspace: str = "executer"
         self.prompt: str = f"{Color.YELLOW}[zerotoolkit][{self.workspace}] > {Color.RESET}"
@@ -36,10 +35,10 @@ class ZeroToolkit:
         {Color.GREEN}
         ███████╗███████╗██████╗  ██████╗ ██╗  ██╗██████╗ ██╗      ██████╗ ██╗████████╗
         ╚══███╔╝██╔════╝██╔══██╗██╔═══██╗╚██╗██╔╝██╔══██╗██║     ██╔═══██╗██║╚══██╔══╝
-          ███╔╝ █████╗  ██████╔╝██║   ██║ ╚███╔╝ ██████╔╝██║     ██║   ██║██║   ██║   
-         ███╔╝  ██╔══╝  ██╔══██╗██║   ██║ ██╔██╗ ██╔═══╝ ██║     ██║   ██║██║   ██║   
-        ███████╗███████╗██║  ██║╚██████╔╝██╔╝ ██╗██║     ███████╗╚██████╔╝██║   ██║   
-        ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═╝   ╚═╝   
+          ███╔╝ █████╗  ██████╔╝██║   ██║ ╚███╔╝ ██████╔╝██║     ██║   ██║██║   ██║
+         ███╔╝  ██╔══╝  ██╔══██╗██║   ██║ ██╔██╗ ██╔═══╝ ██║     ██║   ██║██║   ██║
+        ███████╗███████╗██║  ██║╚██████╔╝██╔╝ ██╗██║     ███████╗╚██████╔╝██║   ██║
+        ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═════╝ ╚═╝   ╚═╝
         {Color.RESET}
         {Color.GREEN}Developed by Kamarudheen{Color.RESET}
         """
@@ -58,17 +57,17 @@ class ZeroToolkit:
     def run(self) -> None:
         """Main execution loop"""
         self.display_banner()
-        
+
         while True:
             try:
                 command = input(self.prompt).strip()
                 if not command:
                     continue
-                    
+
                 cmd_parts = command.split()
                 cmd, args = cmd_parts[0], cmd_parts[1:]
                 self.execute_command(cmd, args)
-                
+
             except KeyboardInterrupt:
                 print("\nUse 'exit' to quit")
             except EOFError:

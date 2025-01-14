@@ -16,7 +16,7 @@ def print_table(rows: List[List[Any]], headers: List[str], config: TableConfig =
         max(len(str(item)) for item in col) + config.padding
         for col in zip(*([headers] + rows))
     ]
-    
+
     total_width = sum(column_widths) + len(column_widths) + 1
 
     def format_row(items: List[Any]) -> str:

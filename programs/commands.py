@@ -4,7 +4,7 @@ import subprocess
 from typing import List, Optional
 from pathlib import Path
 from programs.marketplace import (
-    marketplace_items, list_marketplace_items, 
+    marketplace_items, list_marketplace_items,
     ITEM_TYPES, is_valid_type, get_plural_name,
     Color as c, MarketplaceItem
 )
@@ -48,7 +48,7 @@ def cmd_marketplace(args: List[str]) -> None:
         if cmd == "search":
             search_term = " ".join(args[1:])
             filtered_items = [
-                item for item in marketplace_items 
+                item for item in marketplace_items
                 if search_term.lower() in item.name.lower()
             ]
             if filtered_items:
@@ -58,7 +58,7 @@ def cmd_marketplace(args: List[str]) -> None:
         elif is_valid_type(type_singular):
             search_term = " ".join(args[1:])
             filtered_items = [
-                item for item in marketplace_items 
+                item for item in marketplace_items
                 if item.type == type_singular and search_term.lower() in item.name.lower()
             ]
             if filtered_items:
@@ -84,9 +84,9 @@ def cmd_install(args: List[str]) -> None:
         return
 
     install_path = PROJECT_DIR / get_plural_name(item.type) / item.folder
-    
+
     print(f"{c.GREEN}Installing {item.name}...{c.RESET}")
-    
+
     if not install_path.exists():
         install_path.mkdir(parents=True)
         print(f"Created folder: {install_path}")
@@ -132,7 +132,7 @@ def cmd_execute(args: List[str]) -> None:
         return
 
     exec_path = PROJECT_DIR / get_plural_name(item.type) / item.folder / item.start
-    
+
     if not exec_path.exists():
         print(f"{c.RED}Error: {item.start} not found at {exec_path}{c.RESET}")
         return
@@ -141,7 +141,7 @@ def cmd_execute(args: List[str]) -> None:
         command = ["python", str(exec_path)]
         if item.superuser:
             command.insert(0, "sudo")
-            
+
         print(f"{c.GREEN}Executing {item.name}...{c.RESET}")
         print(f"Command: {' '.join(command)}")
         subprocess.run(command, check=True)
