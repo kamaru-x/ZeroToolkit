@@ -139,17 +139,16 @@ def cmd_execute(args: List[str]) -> None:
 
     try:
         command = ["python", str(exec_path)]
-        if item.superuser:
+        if item.superuser and os.name != 'nt':
             command.insert(0, "sudo")
 
         print(f"{c.GREEN}Executing {item.name}...{c.RESET}")
         print(f"Command: {' '.join(command)}")
-        subprocess.run(command, check=True)
+        subprocess.run(command, check=True, shell=True if os.name == 'nt' else False)
     except subprocess.CalledProcessError as e:
         print(f"{c.RED}Execution failed: {e}{c.RESET}")
 
 def cmd_update(args: List[str]) -> None:
-    """Update an installed item"""
     if len(args) != 1:
         print(f"{c.RED}Error: Usage: update <item_id>{c.RESET}")
         return
@@ -163,9 +162,14 @@ def cmd_update(args: List[str]) -> None:
 
     if install_path.exists():
         try:
+            for root, dirs, files in os.walk(install_path):
+                for dir in dirs:
+                    os.chmod(os.path.join(root, dir), 0o777)
+                for file in files:
+                    os.chmod(os.path.join(root, file), 0o777)
             shutil.rmtree(install_path)
             print(f"{c.GREEN}Removed old version{c.RESET}")
-            subprocess.run(["git", "clone", item.url, str(install_path)], check=True)
+            subprocess.run(["git", "clone", item.url, str(install_path)], check=True, shell=True if os.name == 'nt' else False)
             print(f"{c.GREEN}Successfully updated {item.name}{c.RESET}")
         except Exception as e:
             print(f"{c.RED}Update failed: {e}{c.RESET}")
@@ -173,7 +177,6 @@ def cmd_update(args: List[str]) -> None:
         print(f"{c.RED}Item not installed. Use 'install {item.id}' first{c.RESET}")
 
 def cmd_delete(args: List[str]) -> None:
-    """Delete an installed item"""
     if len(args) != 1:
         print(f"{c.RED}Error: Usage: delete <item_id>{c.RESET}")
         return
@@ -187,6 +190,11 @@ def cmd_delete(args: List[str]) -> None:
 
     if install_path.exists():
         try:
+            for root, dirs, files in os.walk(install_path):
+                for dir in dirs:
+                    os.chmod(os.path.join(root, dir), 0o777)
+                for file in files:
+                    os.chmod(os.path.join(root, file), 0o777)
             shutil.rmtree(install_path)
             print(f"{c.GREEN}Successfully deleted {item.name}{c.RESET}")
         except Exception as e:
