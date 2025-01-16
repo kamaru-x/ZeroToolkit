@@ -85,13 +85,15 @@ def cmd_install(args: List[str]) -> None:
 
     install_path = PROJECT_DIR / get_plural_name(item.type) / item.folder
 
+    if install_path.exists():
+        print(f"{c.RED}Item {item.name} is already installed{c.RESET}")
+        return
+
     print(f"{c.GREEN}Installing {item.name}...{c.RESET}")
 
-    if not install_path.exists():
+    try:
         install_path.mkdir(parents=True)
         print(f"Created folder: {install_path}")
-
-    try:
         subprocess.run(["git", "clone", item.url, str(install_path)], check=True)
         print(f"{c.GREEN}Successfully installed {item.name}{c.RESET}")
     except subprocess.CalledProcessError as e:
@@ -121,12 +123,15 @@ def cmd_list(args: List[str]) -> None:
         print(f"{c.RED}No installed {get_plural_name(type_singular)} found{c.RESET}")
 
 def cmd_execute(args: List[str]) -> None:
-    """Execute an installed item"""
-    if len(args) != 1:
-        print(f"{c.RED}Error: Usage: execute <item_id>{c.RESET}")
+    """Execute an installed item with optional arguments"""
+    if len(args) < 1:
+        print(f"{c.RED}Error: Usage: execute <item_id> [args...]{c.RESET}")
         return
 
-    item = get_item_by_id(args[0])
+    item_id = args[0]
+    item_args = args[1:]
+
+    item = get_item_by_id(item_id)
     if not item:
         print(f"{c.RED}Error: Item not found{c.RESET}")
         return
@@ -138,12 +143,11 @@ def cmd_execute(args: List[str]) -> None:
         return
 
     try:
-        command = ["python", str(exec_path)]
+        command = ["python", str(exec_path)] + item_args
         if item.superuser and os.name != 'nt':
             command.insert(0, "sudo")
 
         print(f"{c.GREEN}Executing {item.name}...{c.RESET}")
-        print(f"Command: {' '.join(command)}")
         subprocess.run(command, check=True, shell=True if os.name == 'nt' else False)
     except subprocess.CalledProcessError as e:
         print(f"{c.RED}Execution failed: {e}{c.RESET}")
